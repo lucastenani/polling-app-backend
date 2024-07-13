@@ -17,6 +17,16 @@ export const register = asyncHandler(
 
     const password_hash = await hash(password, 6)
 
+    const userWithSameEmail = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    })
+
+    if (userWithSameEmail) {
+      return response.status(409).send()
+    }
+
     await prisma.user.create({
       data: {
         name,
