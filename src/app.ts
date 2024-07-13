@@ -1,13 +1,31 @@
-import { PrismaClient } from '@prisma/client'
 import express from 'express'
+import asyncHandler from 'express-async-handler'
+import { z } from 'zod'
+
+import { prisma } from './lib/prisma'
 
 export const app = express()
+app.use(express.json())
 
-const prisma = new PrismaClient()
+app.post(
+  '/users',
+  asyncHandler(async (request, response) => {
+    const registerBodySchema = z.object({
+      name: z.string(),
+      email: z.string().email(),
+      password: z.string().min(6),
+    })
 
-prisma.user.create({
-  data: {
-    email: 'jOhn doe',
-    name: 'John Doe',
-  },
-})
+    const { name, email, password } = registerBodySchema.parse(request.body)
+
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        password_hash: password,
+      },
+    })
+
+    return response.status(201).send()
+  }),
+)
