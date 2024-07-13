@@ -1,3 +1,4 @@
+import { hash } from 'bcryptjs'
 import { Request, Response } from 'express'
 import asyncHandler from 'express-async-handler'
 import { z } from 'zod'
@@ -14,11 +15,13 @@ export const register = asyncHandler(
   async (request: Request, response: Response) => {
     const { name, email, password } = registerBodySchema.parse(request.body)
 
+    const password_hash = await hash(password, 6)
+
     await prisma.user.create({
       data: {
         name,
         email,
-        password_hash: password,
+        password_hash,
       },
     })
 

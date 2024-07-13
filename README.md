@@ -7,6 +7,8 @@
 - prisma
 - express
 - zod
+- bycript
+- express-async-handler
 
 # Requisitos Funcionais
 ## Gestão de Enquetes
