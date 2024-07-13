@@ -31,20 +31,20 @@ model Poll {
   description String?
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
-  isActive    Boolean  @default(true)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  is_active   Boolean  @default(true)
+  user_id     String
+  user        User     @relation(fields: [user_id], references: [id])
   options     Option[]
 
   @@map("polls")
 }
 
 model Option {
-  id     Int    @id @default(autoincrement())
-  text   String
-  pollId Int
-  poll   Poll   @relation(fields: [pollId], references: [id])
-  votes  Vote[]
+  id      Int    @id @default(autoincrement())
+  text    String
+  poll_id Int
+  poll    Poll   @relation(fields: [poll_id], references: [id])
+  votes   Vote[]
 
   @@map("options")
 }
@@ -52,11 +52,11 @@ model Option {
 model Vote {
   id         Int      @id @default(autoincrement())
   created_at DateTime @default(now())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  optionId   Int
-  option     Option   @relation(fields: [optionId], references: [id])
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  option_id  Int
+  option     Option   @relation(fields: [option_id], references: [id])
 
-  @@unique([userId, optionId])
+  @@unique([user_id, option_id])
   @@map("votes")
 }
