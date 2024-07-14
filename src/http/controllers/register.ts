@@ -1,9 +1,10 @@
-import { hash } from 'bcryptjs'
 import { Request, Response } from 'express'
 import asyncHandler from 'express-async-handler'
 import { z } from 'zod'
 
-import { prisma } from '@/lib/prisma'
+import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository'
+import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
+import { RegisterUseCase } from '@/use-cases/register'
 
 const registerBodySchema = z.object({
   name: z.string(),
@@ -15,26 +16,24 @@ export const register = asyncHandler(
   async (request: Request, response: Response) => {
     const { name, email, password } = registerBodySchema.parse(request.body)
 
-    const password_hash = await hash(password, 6)
+    try {
+      const usersRepository = new PrismaUsersRepository()
+      const registerUseCase = new RegisterUseCase(usersRepository)
 
-    const userWithSameEmail = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    })
-
-    if (userWithSameEmail) {
-      return response.status(409).send()
-    }
-
-    await prisma.user.create({
-      data: {
+      await registerUseCase.execute({
         name,
         email,
-        password_hash,
-      },
-    })
+        password,
+      })
+    } catch (err) {
+      if (err instanceof UserAlreadyExistsError) {
+        response.status(409).send({ message: err.message })
+        return
+      }
 
-    return response.status(201).send()
+      throw err
+    }
+
+    response.status(201).send()
   },
 )
