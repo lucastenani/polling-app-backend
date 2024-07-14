@@ -2,9 +2,8 @@ import { Request, Response } from 'express'
 import asyncHandler from 'express-async-handler'
 import { z } from 'zod'
 
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository'
-import { AuthenticateUseCase } from '@/use-cases/authenticate'
 import { InvalidCredentialsError } from '@/use-cases/errors/invalid-credentials-error'
+import { makeAuthenticateUseCase } from '@/use-cases/factories/make-authenticate-use-case'
 
 const authenticateBodySchema = z.object({
   email: z.string().email(),
@@ -16,8 +15,7 @@ export const authenticate = asyncHandler(
     const { email, password } = authenticateBodySchema.parse(request.body)
 
     try {
-      const usersRepository = new PrismaUsersRepository()
-      const authenticateUserCase = new AuthenticateUseCase(usersRepository)
+      const authenticateUserCase = makeAuthenticateUseCase()
 
       await authenticateUserCase.execute({
         email,
