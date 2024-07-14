@@ -1,82 +1,60 @@
-import { hash } from 'bcryptjs'
-import { Request, Response } from 'express'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { compare } from 'bcryptjs'
+import { describe, expect, it } from 'vitest'
 
-import { prisma } from '@/lib/prisma'
+import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository'
+import { UserAlreadyExistsError } from '@/use-cases/errors/user-already-exists-error'
+import { RegisterUseCase } from '@/use-cases/register'
 
-import { register } from './register'
+describe('Register use cases', () => {
+  it('Should be able to register user', async () => {
+    const usersRepository = new InMemoryUsersRepository()
+    const registerUseCase = new RegisterUseCase(usersRepository)
 
-// Mocking bcryptjs hash function
-vi.mock('bcryptjs', () => ({
-  hash: vi.fn().mockResolvedValue('hashed_password'),
-}))
-
-beforeEach(async () => {
-  // Clear the database before each test
-  await prisma.user.deleteMany({})
-})
-
-const mockRequest = {
-  body: {
-    name: 'John Doe',
-    email: 'johndoe@example.com',
-    password: '123456',
-  },
-} as Request
-
-const mockResponse = {
-  status: vi.fn().mockReturnThis(),
-  send: vi.fn(),
-} as unknown as Response
-
-describe('Register', () => {
-  it('should be able to register', async () => {
-    await register(mockRequest, mockResponse)
-
-    // Check if the response status is 201
-    expect(mockResponse.status).toHaveBeenCalledWith(201)
-    expect(mockResponse.send).toHaveBeenCalled()
-  })
-
-  it('should hash the user password upon registration', async () => {
-    await register(mockRequest, mockResponse)
-
-    // Check if the password was hashed correctly
-    expect(hash).toHaveBeenCalledWith('123456', 6)
-
-    // Ensure the user is created with the hashed password
-    const createdUser = await prisma.user.findUnique({
-      where: { email: 'johndoe@example.com' },
+    const { user } = await registerUseCase.execute({
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      password: '123456',
     })
 
-    expect(createdUser).toBeDefined()
-    expect(createdUser!.password_hash).toBe('hashed_password')
-
-    // Check if the response status is 201
-    expect(mockResponse.status).toHaveBeenCalledWith(201)
-    expect(mockResponse.send).toHaveBeenCalled()
+    expect(user.id).toEqual(expect.any(String))
   })
 
-  it('should not be able to register with the same email twice', async () => {
-    const mockRequest2 = {
-      body: {
-        name: 'Jane Smith',
-        email: 'johndoe@example.com', // Same email as mockRequest1
-        password: 'password123',
-      },
-    } as Request
+  it('Should hash user password upon registration', async () => {
+    const usersRepository = new InMemoryUsersRepository()
+    const registerUseCase = new RegisterUseCase(usersRepository)
 
-    const mockResponse2 = {
-      status: vi.fn().mockReturnThis(),
-      send: vi.fn(),
-    } as unknown as Response
+    const { user } = await registerUseCase.execute({
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      password: '123456',
+    })
 
-    // First registration
-    await register(mockRequest, mockResponse)
-    expect(mockResponse.status).toHaveBeenCalledWith(201)
+    const isPasswordCorrectlyHashed = await compare(
+      '123456',
+      user.password_hash,
+    )
 
-    // second
-    await register(mockRequest2, mockResponse2)
-    expect(mockResponse2.status).toHaveBeenCalledWith(409)
+    expect(isPasswordCorrectlyHashed).toBe(true)
+  })
+
+  it('Should not be able to register with same email twice', async () => {
+    const usersRepository = new InMemoryUsersRepository()
+    const registerUseCase = new RegisterUseCase(usersRepository)
+
+    const email = 'john.doe@example.com'
+
+    await registerUseCase.execute({
+      name: 'John Doe',
+      email,
+      password: '123456',
+    })
+
+    expect(() =>
+      registerUseCase.execute({
+        name: 'Doe John',
+        email,
+        password: '654321',
+      }),
+    ).rejects.toBeInstanceOf(UserAlreadyExistsError)
   })
 })
