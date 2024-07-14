@@ -9,6 +9,7 @@
 - zod
 - bycript
 - express-async-handler
+- vitest
 
 # Requisitos Funcionais
 ## Gestão de Enquetes
