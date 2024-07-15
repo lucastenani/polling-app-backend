@@ -6,21 +6,27 @@ export class InMemoryVotesRepository implements VotesRepository {
   public items: Vote[] = []
   private currentId = 1
 
-  async findByUserId(userId: string): Promise<Vote | null> {
-    const didUserVote = this.items.find((vote) => vote.user_id === userId)
-
-    return didUserVote || null
-  }
-
-  async findByOptionId(optionId: number): Promise<Vote | null> {
-    const didUserVoteOnSameOption = this.items.find(
-      (vote) => vote.option_id === optionId,
+  async findByUserIdAndOptionId(
+    userId: string,
+    optionId: number,
+  ): Promise<Vote | null> {
+    const existingVote = this.items.find(
+      (vote) => vote.user_id === userId && vote.option_id === optionId,
     )
 
-    return didUserVoteOnSameOption || null
+    return existingVote || null
   }
 
   async create(data: Prisma.VoteUncheckedCreateInput) {
+    const existingVote = await this.findByUserIdAndOptionId(
+      data.user_id,
+      data.option_id,
+    )
+
+    if (existingVote) {
+      throw new Error('User has already voted on this option.')
+    }
+
     const vote: Vote = {
       id: this.currentId,
       user_id: data.user_id,

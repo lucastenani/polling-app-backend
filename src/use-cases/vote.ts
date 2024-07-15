@@ -18,17 +18,11 @@ export class VoteUseCase {
     userId,
     optionId,
   }: VoteUseCaseProps): Promise<VoteUseCaseResponse> {
-    const didUserVote = await this.votesRepository.findByUserId(userId)
-
-    if (didUserVote) {
-      throw new Error('User has already voted')
-    }
-
     const didUserVoteOnSameOption =
-      await this.votesRepository.findByOptionId(optionId)
+      await this.votesRepository.findByUserIdAndOptionId(userId, optionId)
 
     if (didUserVoteOnSameOption) {
-      throw new Error('User has already voted on this option')
+      throw new Error('User has already voted on this option.')
     }
 
     const vote = await this.votesRepository.create({
