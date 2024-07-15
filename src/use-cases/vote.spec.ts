@@ -19,9 +19,11 @@ describe('Vote use cases', () => {
     })
 
     expect(vote.id).toEqual(expect.any(Number))
+    expect(vote.option_id).toEqual(1)
+    expect(vote.user_id).toEqual('1')
   })
 
-  it('Should not be able to vote twice in same option', async () => {
+  it('Should not be able to vote twice in the same poll', async () => {
     await sut.execute({
       optionId: 2,
       userId: '2',
@@ -51,15 +53,18 @@ describe('Vote use cases', () => {
       userId: '2',
     })
 
-    console.log(votesRepository.items)
+    const items = votesRepository.items
 
-    expect(votesRepository.items).toHaveLength(3)
-    expect(votesRepository.items[0].user_id).toBe('1')
-    expect(votesRepository.items[0].option_id).toBe(1)
-    expect(votesRepository.items[1].user_id).toBe('3')
-    expect(votesRepository.items[1].option_id).toBe(2)
-    expect(votesRepository.items[2].user_id).toBe('2')
-    expect(votesRepository.items[2].option_id).toBe(2)
+    expect(items).toHaveLength(3)
+    expect(
+      items.some((vote) => vote.user_id === '1' && vote.option_id === 1),
+    ).toBe(true)
+    expect(
+      items.some((vote) => vote.user_id === '3' && vote.option_id === 2),
+    ).toBe(true)
+    expect(
+      items.some((vote) => vote.user_id === '2' && vote.option_id === 2),
+    ).toBe(true)
   })
 
   it('Should not allow a user to vote on the same option twice', async () => {
@@ -74,5 +79,25 @@ describe('Vote use cases', () => {
         userId: '1',
       }),
     ).rejects.toThrow('User has already voted on this option.')
+  })
+
+  it('Should update vote if user votes on a different option', async () => {
+    await sut.execute({
+      optionId: 1,
+      userId: '1',
+    })
+
+    const { vote: updatedVote } = await sut.execute({
+      optionId: 2,
+      userId: '1',
+    })
+
+    expect(updatedVote.id).toEqual(expect.any(Number))
+    expect(updatedVote.option_id).toEqual(2)
+    expect(updatedVote.user_id).toEqual('1')
+
+    const votes = await votesRepository.findByUserId('1')
+    expect(votes).toBeDefined()
+    expect(votes!.option_id).toEqual(2)
   })
 })

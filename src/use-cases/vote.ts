@@ -18,11 +18,16 @@ export class VoteUseCase {
     userId,
     optionId,
   }: VoteUseCaseProps): Promise<VoteUseCaseResponse> {
-    const didUserVoteOnSameOption =
-      await this.votesRepository.findByUserIdAndOptionId(userId, optionId)
-
-    if (didUserVoteOnSameOption) {
+    const existingVote = await this.votesRepository.findByUserId(userId)
+    if (existingVote && existingVote.option_id === optionId) {
       throw new Error('User has already voted on this option.')
+    }
+
+    if (existingVote && existingVote.option_id !== optionId) {
+      const updatedVote = await this.votesRepository.update(existingVote.id, {
+        option_id: optionId,
+      })
+      return { vote: updatedVote }
     }
 
     const vote = await this.votesRepository.create({
