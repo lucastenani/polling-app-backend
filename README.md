@@ -11,6 +11,8 @@
 - express-async-handler
 - vitest
 
+- Unit Tests - In memory tests to dont use bd
+
 # Requisitos Funcionais
 ## Gestão de Enquetes
 
@@ -22,8 +24,8 @@
 
 ## Autenticação e Autorização
 
-- [] Deve ser possível registrar um novo usuário com nome, e-mail e senha.
-- [] Deve ser possível realizar login de um usuário com e-mail e senha.
+- [x] Deve ser possível registrar um novo usuário com nome, e-mail e senha.
+- [x] Deve ser possível realizar login de um usuário com e-mail e senha.
 - [] Deve ser possível proteger endpoints sensíveis, permitindo acesso apenas a usuários autenticados.
 ## Votação
 
