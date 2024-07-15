@@ -17,11 +17,11 @@
 # Requisitos Funcionais
 ## Gestão de Enquetes
 
-- [] Deve ser possível criar uma nova enquete com um título, descrição e opções de voto.
-- [] Deve ser possível listar todas as enquetes disponíveis.
-- [] Deve ser possível obter os detalhes de uma enquete específica pelo seu ID.
-- [] Deve ser possível atualizar uma enquete existente (título, descrição, opções de voto).
-- [] Deve ser possível desativar uma enquete.
+- [x] Deve ser possível criar uma nova enquete com um título, descrição e opções de voto.
+- [x] Deve ser possível listar todas as enquetes disponíveis.
+- [x] Deve ser possível obter os detalhes de uma enquete específica pelo seu ID.
+- [x] Deve ser possível atualizar uma enquete existente (título, descrição, opções de voto).
+- [x] Deve ser possível desativar uma enquete.
 
 ## Autenticação e Autorização
 
@@ -31,7 +31,7 @@
 ## Votação
 
 - [x] Deve ser possível para um usuário votar em uma enquete.
-- [] Deve ser possível ver o número total de votos em cada opção de uma enquete em tempo real.
+- [x] Deve ser possível ver o número total de votos em cada opção de uma enquete em tempo real.
 
 ## Atualizações em Tempo Real
 
@@ -43,7 +43,7 @@
 - [] Somente enquetes ativas devem aceitar votos.
 ## Validação de Dados
 
-- [] Todos os campos obrigatórios devem ser validados durante a criação e atualização de enquetes.
+- [x] Todos os campos obrigatórios devem ser validados durante a criação e atualização de enquetes.
 - [x] O e-mail do usuário deve ser único e validado no registro.
 
 ## Lógica de Resultados

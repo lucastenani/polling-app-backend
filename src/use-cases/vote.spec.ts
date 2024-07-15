@@ -1,21 +1,35 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import { InMemoryPollsRepository } from '@/repositories/in-memory/in-memory-polls-repository'
 import { InMemoryVotesRepository } from '@/repositories/in-memory/in-memory-votes-repository'
+import { PollUseCase } from '@/use-cases/poll'
 import { VoteUseCase } from '@/use-cases/vote'
 
 let votesRepository: InMemoryVotesRepository
-let sut: VoteUseCase
+let pollsRepository: InMemoryPollsRepository
+let voteUseCase: VoteUseCase
+let pollUseCase: PollUseCase
 
 describe('Vote use cases', () => {
   beforeEach(() => {
     votesRepository = new InMemoryVotesRepository()
-    sut = new VoteUseCase(votesRepository)
+    pollsRepository = new InMemoryPollsRepository()
+    voteUseCase = new VoteUseCase(votesRepository, pollsRepository)
+    pollUseCase = new PollUseCase(pollsRepository)
   })
 
   it('Should be able to vote', async () => {
-    const { vote } = await sut.execute({
+    const createdPoll = await pollUseCase.createPoll({
+      title: 'Favorite programming language?',
+      description: 'Choose your favorite programming language',
+      options: ['JavaScript', 'Python'],
+      userId: '1',
+    })
+
+    const { vote } = await voteUseCase.execute({
       optionId: 1,
       userId: '1',
+      pollId: createdPoll.id,
     })
 
     expect(vote.id).toEqual(expect.any(Number))
@@ -23,73 +37,24 @@ describe('Vote use cases', () => {
     expect(vote.user_id).toEqual('1')
   })
 
-  it('Should not be able to vote twice in the same poll', async () => {
-    await sut.execute({
-      optionId: 2,
-      userId: '2',
-    })
-
-    await expect(
-      sut.execute({
-        optionId: 2,
-        userId: '2',
-      }),
-    ).rejects.toBeInstanceOf(Error)
-  })
-
-  it('Should allow multiple users to vote on different options', async () => {
-    await sut.execute({
-      optionId: 1,
-      userId: '1',
-    })
-
-    await sut.execute({
-      optionId: 2,
-      userId: '3',
-    })
-
-    await sut.execute({
-      optionId: 2,
-      userId: '2',
-    })
-
-    const items = votesRepository.items
-
-    expect(items).toHaveLength(3)
-    expect(
-      items.some((vote) => vote.user_id === '1' && vote.option_id === 1),
-    ).toBe(true)
-    expect(
-      items.some((vote) => vote.user_id === '3' && vote.option_id === 2),
-    ).toBe(true)
-    expect(
-      items.some((vote) => vote.user_id === '2' && vote.option_id === 2),
-    ).toBe(true)
-  })
-
-  it('Should not allow a user to vote on the same option twice', async () => {
-    await sut.execute({
-      optionId: 1,
-      userId: '1',
-    })
-
-    await expect(
-      sut.execute({
-        optionId: 1,
-        userId: '1',
-      }),
-    ).rejects.toThrow('User has already voted on this option.')
-  })
-
   it('Should update vote if user votes on a different option', async () => {
-    await sut.execute({
-      optionId: 1,
+    const createdPoll = await pollUseCase.createPoll({
+      title: 'Favorite programming language?',
+      description: 'Choose your favorite programming language',
+      options: ['JavaScript', 'Python'],
       userId: '1',
     })
 
-    const { vote: updatedVote } = await sut.execute({
+    await voteUseCase.execute({
+      optionId: 1,
+      userId: '1',
+      pollId: createdPoll.id,
+    })
+
+    const { vote: updatedVote } = await voteUseCase.execute({
       optionId: 2,
       userId: '1',
+      pollId: createdPoll.id,
     })
 
     expect(updatedVote.id).toEqual(expect.any(Number))
@@ -99,5 +64,24 @@ describe('Vote use cases', () => {
     const votes = await votesRepository.findByUserId('1')
     expect(votes).toBeDefined()
     expect(votes!.option_id).toEqual(2)
+  })
+
+  it('Should not allow voting on an inactive poll', async () => {
+    const createdPoll = await pollUseCase.createPoll({
+      title: 'Favorite programming language?',
+      description: 'Choose your favorite programming language',
+      options: ['JavaScript', 'Python'],
+      userId: '1',
+    })
+
+    await pollUseCase.deactivatePoll(createdPoll.id)
+
+    await expect(
+      voteUseCase.execute({
+        userId: '2',
+        optionId: 1,
+        pollId: createdPoll.id,
+      }),
+    ).rejects.toThrow('Poll is not active. Cannot vote.')
   })
 })

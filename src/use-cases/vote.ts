@@ -1,40 +1,52 @@
 import { Vote } from '@prisma/client'
 
+import { PollsRepository } from '@/repositories/poll-repository'
 import { VotesRepository } from '@/repositories/votes-repository'
 
-interface VoteUseCaseProps {
+interface ExecuteVoteProps {
   userId: string
   optionId: number
-}
-
-interface VoteUseCaseResponse {
-  vote: Vote
+  pollId: number
 }
 
 export class VoteUseCase {
-  constructor(private votesRepository: VotesRepository) {}
+  constructor(
+    private votesRepository: VotesRepository,
+    private pollsRepository: PollsRepository,
+  ) {}
 
   async execute({
     userId,
     optionId,
-  }: VoteUseCaseProps): Promise<VoteUseCaseResponse> {
-    const existingVote = await this.votesRepository.findByUserId(userId)
-    if (existingVote && existingVote.option_id === optionId) {
-      throw new Error('User has already voted on this option.')
+    pollId,
+  }: ExecuteVoteProps): Promise<{ vote: Vote }> {
+    const poll = await this.pollsRepository.findById(pollId)
+
+    if (!poll || !poll.is_active) {
+      throw new Error('Poll is not active. Cannot vote.')
     }
 
-    if (existingVote && existingVote.option_id !== optionId) {
-      const updatedVote = await this.votesRepository.update(existingVote.id, {
+    let existingVote = await this.votesRepository.findByUserIdAndOptionId(
+      userId,
+      pollId,
+    )
+
+    if (existingVote) {
+      if (existingVote.option_id === optionId) {
+        throw new Error('User has already voted on this option.')
+      } else {
+        existingVote = await this.votesRepository.update(existingVote.id, {
+          option_id: optionId,
+        })
+      }
+    } else {
+      existingVote = await this.votesRepository.create({
+        user_id: userId,
         option_id: optionId,
+        poll_id: pollId,
       })
-      return { vote: updatedVote }
     }
 
-    const vote = await this.votesRepository.create({
-      option_id: optionId,
-      user_id: userId,
-    })
-
-    return { vote }
+    return { vote: existingVote }
   }
 }

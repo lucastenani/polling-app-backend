@@ -62,8 +62,6 @@ export class InMemoryPollsRepository implements PollsRepository {
       (poll) => poll.id === id && poll.is_active,
     )
 
-    console.log(pollIndex)
-
     if (pollIndex === -1) {
       throw new Error('Poll not found.')
     }
