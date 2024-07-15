@@ -20,4 +20,32 @@ describe('Vote use cases', () => {
 
     expect(vote.id).toEqual(expect.any(Number))
   })
+
+  it('Should not be able to user vote twice', async () => {
+    await sut.execute({
+      optionId: 1,
+      userId: '1',
+    })
+
+    await expect(
+      sut.execute({
+        optionId: 2,
+        userId: '1',
+      }),
+    ).rejects.toBeInstanceOf(Error)
+  })
+
+  it('Should not be able to vote twice in same option', async () => {
+    await sut.execute({
+      optionId: 2,
+      userId: '2',
+    })
+
+    await expect(
+      sut.execute({
+        optionId: 2,
+        userId: '2',
+      }),
+    ).rejects.toBeInstanceOf(Error)
+  })
 })

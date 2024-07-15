@@ -11,6 +11,7 @@
 - express-async-handler
 - vitest
 
+#tdd
 - Unit Tests - In memory tests to dont use bd
 
 # Requisitos Funcionais
