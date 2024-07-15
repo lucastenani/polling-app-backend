@@ -34,19 +34,13 @@ model Poll {
   is_active   Boolean  @default(true)
   user_id     String
   user        User     @relation(fields: [user_id], references: [id])
-  options     Option[]
+  options     Json[]   @default([
+    { text: "Option A" },
+    { text: "Option B" }
+  ])
+  votes       Vote[]
 
   @@map("polls")
-}
-
-model Option {
-  id      Int    @id @default(autoincrement())
-  text    String
-  poll_id Int
-  poll    Poll   @relation(fields: [poll_id], references: [id])
-  votes   Vote[]
-
-  @@map("options")
 }
 
 model Vote {
@@ -54,9 +48,10 @@ model Vote {
   created_at DateTime @default(now())
   user_id    String
   user       User     @relation(fields: [user_id], references: [id])
+  poll_id    Int
+  poll       Poll     @relation(fields: [poll_id], references: [id])
   option_id  Int
-  option     Option   @relation(fields: [option_id], references: [id])
 
-  @@unique([user_id, option_id])
+  @@unique([user_id, poll_id])
   @@map("votes")
 }
