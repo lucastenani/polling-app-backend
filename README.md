@@ -30,7 +30,7 @@
 - [] Deve ser possível proteger endpoints sensíveis, permitindo acesso apenas a usuários autenticados.
 ## Votação
 
-- [] Deve ser possível para um usuário votar em uma enquete.
+- [x] Deve ser possível para um usuário votar em uma enquete.
 - [] Deve ser possível ver o número total de votos em cada opção de uma enquete em tempo real.
 
 ## Atualizações em Tempo Real
@@ -39,12 +39,12 @@
 # Regras de Negócio
 ## Restrição de Votação
 
-- [] Um usuário deve ser capaz de votar apenas uma vez em cada enquete.
+- [x] Um usuário deve ser capaz de votar apenas uma vez em cada enquete.
 - [] Somente enquetes ativas devem aceitar votos.
 ## Validação de Dados
 
 - [] Todos os campos obrigatórios devem ser validados durante a criação e atualização de enquetes.
-- [] O e-mail do usuário deve ser único e validado no registro.
+- [x] O e-mail do usuário deve ser único e validado no registro.
 
 ## Lógica de Resultados
 

@@ -48,4 +48,34 @@ describe('Vote use cases', () => {
       }),
     ).rejects.toBeInstanceOf(Error)
   })
+
+  it('Should allow multiple users to vote on the same option', async () => {
+    await sut.execute({
+      optionId: 1,
+      userId: '1',
+    })
+
+    const { vote: vote2 } = await sut.execute({
+      optionId: 1,
+      userId: '2',
+    })
+
+    expect(vote2.option_id).toEqual(1)
+    expect(votesRepository.items.length).toEqual(2)
+  })
+
+  it('Should allow multiple users to vote on different options', async () => {
+    await sut.execute({
+      optionId: 1,
+      userId: '1',
+    })
+
+    const { vote: vote2 } = await sut.execute({
+      optionId: 2,
+      userId: '2',
+    })
+
+    expect(vote2.option_id).toEqual(2)
+    expect(votesRepository.items.length).toEqual(2)
+  })
 })
