@@ -21,7 +21,7 @@
 - [] Deve ser possível listar todas as enquetes disponíveis.
 - [] Deve ser possível obter os detalhes de uma enquete específica pelo seu ID.
 - [] Deve ser possível atualizar uma enquete existente (título, descrição, opções de voto).
-- [] Deve ser possível excluir uma enquete.
+- [] Deve ser possível desativar uma enquete.
 
 ## Autenticação e Autorização
 
