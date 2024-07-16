@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "polls" ADD COLUMN     "vote_option1" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "vote_option2" INTEGER NOT NULL DEFAULT 0;

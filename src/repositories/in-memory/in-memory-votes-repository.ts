@@ -11,6 +11,7 @@ export class InMemoryVotesRepository implements VotesRepository {
       id: this.currentId,
       user_id: data.user_id,
       option_id: data.option_id,
+      poll_id: data.poll_id,
       created_at: new Date(),
     }
 
@@ -39,19 +40,14 @@ export class InMemoryVotesRepository implements VotesRepository {
     id: number,
     data: Prisma.VoteUncheckedUpdateInput,
   ): Promise<Vote> {
-    const voteIndex = this.items.findIndex((vote) => vote.id === id)
+    const vote = this.items.find((vote) => vote.id === id)
 
-    if (voteIndex === -1) {
+    if (!vote) {
       throw new Error('Vote not found.')
     }
 
-    const updatedVote = {
-      ...this.items[voteIndex],
-      ...data,
-    }
+    Object.assign(vote, data)
 
-    this.items[voteIndex] = updatedVote
-
-    return updatedVote
+    return vote
   }
 }

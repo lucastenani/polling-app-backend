@@ -19,11 +19,20 @@ describe('Vote use cases', () => {
     pollUseCase = new PollUseCase(pollsRepository)
   })
 
+  const createMockOption = (text: string) => ({
+    id: 1, // Adjust ID if needed for your test scenario
+    text,
+    vote_count: 0,
+    pollId: 1,
+  })
+
   it('Should be able to vote', async () => {
+    const option1 = createMockOption('option 1')
+    const option2 = createMockOption('option 2')
     const createdPoll: Poll = await pollUseCase.createPoll({
       title: 'Favorite programming language?',
       description: 'Choose your favorite programming language',
-      options: ['JavaScript', 'Python'],
+      options: [option1, option2],
       userId: '1',
     })
 
@@ -39,10 +48,12 @@ describe('Vote use cases', () => {
   })
 
   it('Should update vote if user votes on a different option', async () => {
+    const option1 = createMockOption('option 1')
+    const option2 = createMockOption('option 2')
     const createdPoll = await pollUseCase.createPoll({
       title: 'Favorite programming language?',
       description: 'Choose your favorite programming language',
-      options: ['JavaScript', 'Python'],
+      options: [option1, option2],
       userId: '1',
     })
 
@@ -68,10 +79,12 @@ describe('Vote use cases', () => {
   })
 
   it('Should not allow voting on an inactive poll', async () => {
+    const option1 = createMockOption('option 1')
+    const option2 = createMockOption('option 2')
     const createdPoll = await pollUseCase.createPoll({
       title: 'Favorite programming language?',
       description: 'Choose your favorite programming language',
-      options: ['JavaScript', 'Python'],
+      options: [option1, option2],
       userId: '1',
     })
 

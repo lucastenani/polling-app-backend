@@ -7,6 +7,8 @@ export class InMemoryPollsRepository implements PollsRepository {
   private currentId = 1
 
   async create(data: Prisma.PollUncheckedCreateInput): Promise<Poll> {
+    const optionsArray = Array.isArray(data.options) ? data.options : []
+
     const poll: Poll = {
       id: this.currentId,
       title: data.title,
@@ -15,7 +17,9 @@ export class InMemoryPollsRepository implements PollsRepository {
       updated_at: new Date(),
       is_active: true,
       user_id: data.user_id,
-      options: data.options, // Atribui diretamente as opções do input
+      options: optionsArray,
+      vote_option1: 0,
+      vote_option2: 0,
     }
 
     this.items.push(poll)
@@ -38,23 +42,18 @@ export class InMemoryPollsRepository implements PollsRepository {
     id: number,
     data: Prisma.PollUncheckedUpdateInput,
   ): Promise<Poll> {
-    const pollIndex = this.items.findIndex(
-      (poll) => poll.id === id && poll.is_active,
-    )
+    const poll = this.items.find((poll) => poll.id === id && poll.is_active)
 
-    if (pollIndex === -1) {
+    if (!poll) {
       throw new Error('Poll not found.')
     }
 
-    const updatedPoll = {
-      ...this.items[pollIndex],
-      ...(data as Omit<Prisma.PollUncheckedUpdateInput, 'id'>),
+    Object.assign(poll, {
+      ...data,
       updated_at: new Date(),
-    }
+    })
 
-    this.items[pollIndex] = updatedPoll
-
-    return updatedPoll
+    return poll
   }
 
   async deactivate(id: number): Promise<Poll> {

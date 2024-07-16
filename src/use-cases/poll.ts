@@ -1,11 +1,11 @@
-import { Poll } from '@prisma/client'
+import { Option, Poll } from '@prisma/client'
 
 import { PollsRepository } from '@/repositories/poll-repository'
 
 interface CreatePollProps {
   title: string
   description?: string
-  options: string[]
+  options: Option[]
   userId: string
 }
 
@@ -13,7 +13,6 @@ interface UpdatePollProps {
   id: number
   title?: string
   description?: string
-  options?: string[]
 }
 
 export class PollUseCase {
@@ -22,17 +21,11 @@ export class PollUseCase {
   async createPoll({
     title,
     description,
-    options,
     userId,
   }: CreatePollProps): Promise<Poll> {
-    if (options.length !== 2) {
-      throw new Error('Poll must have exactly two options.')
-    }
-
     const poll = await this.pollsRepository.create({
       title,
       description,
-      options,
       user_id: userId,
     })
 
@@ -53,20 +46,10 @@ export class PollUseCase {
     return poll
   }
 
-  async updatePoll({
-    id,
-    title,
-    description,
-    options,
-  }: UpdatePollProps): Promise<Poll> {
-    if (options && options.length !== 2) {
-      throw new Error('Poll must have exactly two options.')
-    }
-
+  async updatePoll({ id, title, description }: UpdatePollProps): Promise<Poll> {
     const updatedPoll = await this.pollsRepository.update(id, {
       title,
       description,
-      options,
     })
 
     return updatedPoll
