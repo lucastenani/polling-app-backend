@@ -19,11 +19,11 @@ npm install
 ```
 docker compose up -d
 ```
-6. Start Migrations
+5. Start Migrations
 ```
 npx prisma migrate dev
 ```
-5. Start the development server:
+6. Start the development server:
 
 ```
 npm run start:dev
@@ -31,4 +31,8 @@ npm run start:dev
 
 The server will start, and you can access the API endpoints using tools like [Insomnia](https://insomnia.rest/) to test the calls.
 
+run testes
+```
+npm run test
+```
 
