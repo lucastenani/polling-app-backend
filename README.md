@@ -1,51 +1,34 @@
+
+
 # polling-app-backend
 
-- Senha criptografada (hashing)
+## Getting Started
 
-- eslint
-- typeScript
-- prisma
-- express
-- zod
-- bycript
-- express-async-handler
-- vitest
+To run the server locally, follow these steps:
 
-#tdd
-- Unit Tests - In memory tests to dont use bd
+1. Clone the project repository:
 
-# Requisitos Funcionais
-## Gestão de Enquetes
+2. Navigate to the project folder:
 
-- [x] Deve ser possível criar uma nova enquete com um título, descrição e opções de voto.
-- [x] Deve ser possível listar todas as enquetes disponíveis.
-- [x] Deve ser possível obter os detalhes de uma enquete específica pelo seu ID.
-- [x] Deve ser possível atualizar uma enquete existente (título, descrição, opções de voto).
-- [x] Deve ser possível desativar uma enquete.
+3. Install the required dependencies:
 
-## Autenticação e Autorização
+```
+npm install
+```
+4. Up the docker compose:
+```
+docker compose up -d
+```
+6. Start Migrations
+```
+npx prisma migrate dev
+```
+5. Start the development server:
 
-- [x] Deve ser possível registrar um novo usuário com nome, e-mail e senha.
-- [x] Deve ser possível realizar login de um usuário com e-mail e senha.
-- [] Deve ser possível proteger endpoints sensíveis, permitindo acesso apenas a usuários autenticados.
-## Votação
+```
+npm run start:dev
+```
 
-- [x] Deve ser possível para um usuário votar em uma enquete.
-- [x] Deve ser possível ver o número total de votos em cada opção de uma enquete em tempo real.
+The server will start, and you can access the API endpoints using tools like [Insomnia](https://insomnia.rest/) to test the calls.
 
-## Atualizações em Tempo Real
 
-- [] Deve ser possível para os usuários verem as atualizações dos resultados das enquetes em tempo real sem precisar atualizar a página.
-# Regras de Negócio
-## Restrição de Votação
-
-- [x] Um usuário deve ser capaz de votar apenas uma vez em cada enquete.
-- [] Somente enquetes ativas devem aceitar votos.
-## Validação de Dados
-
-- [x] Todos os campos obrigatórios devem ser validados durante a criação e atualização de enquetes.
-- [x] O e-mail do usuário deve ser único e validado no registro.
-
-## Lógica de Resultados
-
-Os resultados das enquetes devem ser atualizados automaticamente e refletir em tempo real as novas votações recebidas.
