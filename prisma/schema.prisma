@@ -34,10 +34,7 @@ model Poll {
   is_active   Boolean  @default(true)
   user_id     String
   user        User     @relation(fields: [user_id], references: [id])
-  options     Json[]   @default([
-    { text: "Option A" },
-    { text: "Option B" }
-  ])
+  options     String[]
   votes       Vote[]
 
   @@map("polls")

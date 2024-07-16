@@ -5,7 +5,7 @@ import { PollsRepository } from '@/repositories/poll-repository'
 interface CreatePollProps {
   title: string
   description?: string
-  options: { text: string }[]
+  options: string[]
   userId: string
 }
 
@@ -13,7 +13,7 @@ interface UpdatePollProps {
   id: number
   title?: string
   description?: string
-  options?: { text: string }[]
+  options?: string[]
 }
 
 export class PollUseCase {

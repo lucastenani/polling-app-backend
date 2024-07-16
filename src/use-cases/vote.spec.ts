@@ -1,3 +1,4 @@
+import { Poll } from '@prisma/client'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { InMemoryPollsRepository } from '@/repositories/in-memory/in-memory-polls-repository'
@@ -19,7 +20,7 @@ describe('Vote use cases', () => {
   })
 
   it('Should be able to vote', async () => {
-    const createdPoll = await pollUseCase.createPoll({
+    const createdPoll: Poll = await pollUseCase.createPoll({
       title: 'Favorite programming language?',
       description: 'Choose your favorite programming language',
       options: ['JavaScript', 'Python'],
